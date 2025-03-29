@@ -3,6 +3,10 @@
 ## Overview
 Multi Window is a powerful plugin for Blockbench that enables seamless synchronization between multiple Blockbench windows. This plugin allows you to open the same project in multiple windows and have all changes synchronized in real-time across all instances.
 
+This is mainly used in multi-screen workstation scenarios where the overall effect can be previewed independently in one screen.
+
+[中文版本README](README_zh.md)
+
 ## Features
 - **Multi-window support**: Open the same project in multiple windows
 - **Real-time synchronization**: All changes made in one window are immediately reflected in others
