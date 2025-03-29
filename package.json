@@ -1,0 +1,17 @@
+{
+  "name": "multi-window",
+  "version": "1.0.0",
+  "description": "BlockBench's Multi-Window Split Screen, Powered by Magic",
+  "main": "multi-window.js",
+  "keywords": [
+    "blockbench",
+    "plugin",
+    "multi-window",
+    "split-screen"
+  ],
+  "author": "EaseCation",
+  "license": "MIT",
+  "devDependencies": {
+    "blockbench-types": "^4.12.1"
+  }
+}
