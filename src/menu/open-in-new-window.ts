@@ -1,3 +1,5 @@
+import { openNewWindow as ipcOpenNewWindow } from "../ipc/ipc-window";
+
 export const openInNewWindowAction = new Action('open_in_new_window', {
     icon: 'backup_table',
     category: 'file',
@@ -14,9 +16,9 @@ export const openInNewWindowAction = new Action('open_in_new_window', {
             bitmaps: true,
             raw: true
         });
-
+        project_data.splitMode = true;
         Project.isSharing = true;
         // 通过IPC发送到主进程
-        ipcRenderer.send('new-window', JSON.stringify(project_data));
+        ipcOpenNewWindow(project_data);
     }
 });

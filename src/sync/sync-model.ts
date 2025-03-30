@@ -1,4 +1,4 @@
-import { listenIPC, sendIPC } from "../ipc/ipc-helper";
+import { listenIPCMagic, sendIPCMagic } from "../ipc/ipc-magic";
 
 const modelEvents = [
     'update_selection'
@@ -16,7 +16,7 @@ export function init() {
     });
 
     // 监听来自其他窗口的模型数据
-    listenIPC('sync-model-data', (data) => {
+    listenIPCMagic('sync-model-data', (data) => {
         if (!Project) return;
         if (Project.name === data.name && data['source_uuid'] !== Project.uuid) {
             console.log(`[SharedProject] 收到来自其他窗口的模型数据更新...`, data);
@@ -40,7 +40,7 @@ function syncModelData() {
     delete project_data['textures'];
     
     // 通过IPC发送到主进程
-    sendIPC('sync-model-data', project_data);
+    sendIPCMagic('sync-model-data', project_data);
 }
 
 function refreshModel(model: any) {

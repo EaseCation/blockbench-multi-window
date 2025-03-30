@@ -1,4 +1,4 @@
-import { listenIPC, sendIPC } from "../ipc/ipc-helper";
+import { listenIPCMagic, sendIPCMagic } from "../ipc/ipc-magic";
 
 const textureEvents = [
     'add_texture', 'update_texture', 'remove_texture', 'update_project_resolution'
@@ -43,7 +43,7 @@ function syncTextureData() {
     delete project_data['meshs'];
     
     // 通过IPC发送到主进程
-    sendIPC('sync-texture-data', project_data);
+    sendIPCMagic('sync-texture-data', project_data);
 }
 
 function refreshTextures(model: any) {

@@ -1,4 +1,4 @@
-import { listenIPC, sendIPC } from "../ipc/ipc-helper";
+import { listenIPCMagic, sendIPCMagic } from "../ipc/ipc-magic";
 
 export function init() {
     // 监听动画帧变化
@@ -12,7 +12,7 @@ export function init() {
                     time: Timeline.time
                 };
                 // 通过IPC发送到主进程
-                sendIPC('sync-animation-frame', data);
+                sendIPCMagic('sync-animation-frame', data);
             }
         }
     });
@@ -37,13 +37,13 @@ export function init() {
                     time: Timeline.time
                 };
                 // 通过IPC发送到主进程
-                sendIPC('sync-animation-timeline', data);
+                sendIPCMagic('sync-animation-timeline', data);
             }
         });
     });
 
     // 监听来自其他窗口的动画帧数据
-    listenIPC('sync-animation-frame', (data) => {
+    listenIPCMagic('sync-animation-frame', (data) => {
         if (!Project) return;
         if (Project.name === data.project_name) {
             // console.log(`[SharedProject] 收到来自其他窗口的动画数据更新...`, data);
@@ -55,7 +55,7 @@ export function init() {
     });
 
     // 监听来自其他窗口的时间轴数据
-    listenIPC('sync-animation-timeline', (data) => {
+    listenIPCMagic('sync-animation-timeline', (data) => {
         if (!Project) return;
         if (Project.name === data.project_name) {
             // console.log(`[SharedProject] 收到来自其他窗口的时间轴数据更新...`, data);

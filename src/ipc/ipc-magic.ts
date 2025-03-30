@@ -3,7 +3,7 @@
  * 刚好这个事件会广播到所有窗口中，因此我们覆盖原始监听，并在此基础上扩充额外的自己的逻辑。
  */
 
-export function sendIPC(magic: string, data: any) {
+export function sendIPCMagic(magic: string, data: any) {
     if (isApp) {
         data['__magic__'] = magic;
         ipcRenderer.send('dragging-tab', JSON.stringify(data));
@@ -14,7 +14,7 @@ export function sendIPC(magic: string, data: any) {
 
 const listening: { [magic: string]: (data: any) => void } = {}
 
-export function listenIPC(magic: string, handler: (data: any) => void) {
+export function listenIPCMagic(magic: string, handler: (data: any) => void) {
     listening[magic] = handler;
 }
 

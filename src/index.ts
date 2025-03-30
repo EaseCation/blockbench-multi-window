@@ -3,6 +3,7 @@ import { registerPlugin } from './plugin';
 declare global {
   interface ModelProject {
     isSharing?: boolean;
+    isSharingClient?: boolean;
   }
 }
 

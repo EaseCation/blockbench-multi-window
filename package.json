@@ -19,6 +19,7 @@
   "devDependencies": {
     "@types/node": "^22.13.14",
     "blockbench-types": "^4.12.1",
+    "terser-webpack-plugin": "^5.3.14",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.5",
     "webpack": "^5.91.0",

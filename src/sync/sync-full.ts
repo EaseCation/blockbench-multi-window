@@ -1,4 +1,4 @@
-import { listenIPC, sendIPC } from "../ipc/ipc-helper";
+import { listenIPCMagic, sendIPCMagic } from "../ipc/ipc-magic";
 
 const syncEvents = [
     'add_cube', 'add_mesh', 'add_group', 'add_texture_mesh',
@@ -24,12 +24,12 @@ export function init() {
                 project_data['source_uuid'] = Project.uuid;
                 delete project_data['editor_state'];
                 // 通过IPC发送到主进程
-                sendIPC('sync-shared-data', project_data);
+                sendIPCMagic('sync-shared-data', project_data);
             }
         });
     });
 
-    listenIPC('sync-shared-data', (data) => {
+    listenIPCMagic('sync-shared-data', (data) => {
         if (!Project) return;
         if (Project.name === data.name && data['source_uuid'] !== Project.uuid) {
             console.log(`[SharedProject] 收到来自其他窗口的完整数据更新...`, data);

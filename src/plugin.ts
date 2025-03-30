@@ -1,6 +1,7 @@
 import { openInNewWindowAction } from './menu/open-in-new-window';
 import { init as initSync } from './sync/sync';
-import { init as initIPC } from './ipc/ipc-helper';
+import { init as initIPCMagic } from './ipc/ipc-magic';
+import { init as initIPCWindow } from './ipc/ipc-window';
 
 /**
  * 注册插件
@@ -21,8 +22,9 @@ export function registerPlugin(): void {
             // 注册各种IPC同步
             initSync();
             // magic的ipc监听
+            initIPCWindow();
             setTimeout(() => {
-                initIPC();
+                initIPCMagic();
             }, 500);
         },
         onunload() {
