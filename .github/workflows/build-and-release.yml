@@ -1,0 +1,40 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*' # 当推送新的版本标签时触发
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        
+      - name: 设置Node.js环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: 安装依赖
+        run: npm ci
+        
+      - name: 构建项目
+        run: npm run build
+        
+      - name: 创建Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dict/multi-window.js
+          name: Release ${{ github.ref_name }}
+          body: |
+            BlockBench多窗口插件 - ${{ github.ref_name }} 发布
+            
+            自动构建于 ${{ github.event.repository.updated_at }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
