@@ -34,11 +34,10 @@ Plugin.register('multi-window', {
 
         // 基础同步
         const syncEvents = [
-            'update_selection',
-            'add_cube', 'add_mesh', 'add_group', 'update_texture', 'add_texture_mesh',
+            'add_cube', 'add_mesh', 'add_group', 'add_texture_mesh',
             'update_keyframe', 'group_elements',
             'finish_edit', 'undo', 'redo', 'change_color',
-            'update_project_settings', 'update_project_resolution', 'add_texture',
+            'update_project_settings',
             'remove_animation', 'edit_animation_properties', 'change_texture_path',
             'load_undo_save', 'merge_project'
         ];
@@ -46,11 +45,38 @@ Plugin.register('multi-window', {
         syncEvents.forEach(eventName => {
             Blockbench.on(eventName, () => {
                 if (Project && Project.isSharing) {
-                    // console.log("[SharedProject] 发送数据...", eventName);
-                    syncSharedData();
+                    console.log("[SharedProject] 发送数据...", eventName);
+                    syncFullData();
                 }
             });
         });
+
+        // 模型同步
+        const modelEvents = [
+            'update_selection'
+        ];
+
+        modelEvents.forEach(eventName => {
+            Blockbench.on(eventName, () => {
+                if (Project && Project.isSharing) {
+                    console.log("[SharedProject] 发送模型数据...", eventName);
+                    syncModelData();
+                }
+            });
+        });
+
+        // 纹理同步
+        /* const textureEvents = [
+            'add_texture', 'update_texture', 'remove_texture', 'update_project_resolution'
+        ];
+        textureEvents.forEach(eventName => {
+            Blockbench.on(eventName, () => {
+                if (Project && Project.isSharing) {
+                    console.log("[SharedProject] 发送纹理数据...", eventName);
+                    syncTextureData();
+                }
+            });
+        }); */
 
         Blockbench.on('display_animation_frame', () => {
             const currentAnimation = Animation.selected;
@@ -93,8 +119,8 @@ Plugin.register('multi-window', {
             });
         });
 
-        // 同步共享数据的方法
-        function syncSharedData() {
+        // 同步完整数据的方法
+        function syncFullData() {
             if (isApp) {
                 let project_data = Codecs.project.compile({
                     editor_state: true,
@@ -111,6 +137,45 @@ Plugin.register('multi-window', {
             }
         }
 
+        function syncModelData() {
+            if (isApp) {
+                let project_data = Codecs.project.compile({
+                    editor_state: false,
+                    history: false, // 不需要复制历史记录
+                    uuids: true,
+                    bitmaps: false,
+                    raw: true
+                });
+                project_data['__magic__'] = 'sync-mdoel-data';
+                project_data['source_uuid'] = Project.uuid;
+                delete project_data['editor_state'];
+                delete project_data['textures'];
+                // 通过IPC发送到主进程
+                ipcRenderer.send('dragging-tab', JSON.stringify(project_data));
+            }
+        }
+
+        function syncTextureData() {
+            if (isApp) {
+                let project_data = Codecs.project.compile({
+                    editor_state: false,
+                    history: false, // 不需要复制历史记录
+                    uuids: true,
+                    bitmaps: true,
+                    raw: true
+                });
+                project_data['__magic__'] = 'sync-texture-data';
+                project_data['source_uuid'] = Project.uuid;
+                delete project_data['editor_state'];
+                delete project_data['elements'];
+                delete project_data['outliner'];
+                delete project_data['animations'];
+                delete project_data['meshs'];
+                // 通过IPC发送到主进程
+                ipcRenderer.send('dragging-tab', JSON.stringify(project_data));
+            }
+        }
+
         // ==== 接收处理 ====
 
         // 究极黑魔法！
@@ -121,8 +186,22 @@ Plugin.register('multi-window', {
                     // magic，同步数据
                     if (!Project) return;
                     if (Project.name === data.name && data['source_uuid'] !== Project.uuid) {
-                        // console.log(`[SharedProject] 收到来自其他窗口的模型数据更新...`, data);
-                        refreshCurrentProject(data);
+                        console.log(`[SharedProject] 收到来自其他窗口的完整数据更新...`, data);
+                        refreshFullProject(data);
+                    }
+                } else if (data['__magic__'] === 'sync-mdoel-data') {
+                    // 是magic，同步模型数据
+                    if (!Project) return;
+                    if (Project.name === data.name && data['source_uuid'] !== Project.uuid) {
+                        console.log(`[SharedProject] 收到来自其他窗口的模型数据更新...`, data);
+                        refreshModel(data);
+                    }
+                } else if (data['__magic__'] === 'sync-texture-data') {
+                    // 是magic，同步纹理数据
+                    if (!Project) return;
+                    if (Project.name === data.name && data['source_uuid'] !== Project.uuid) {
+                        console.log(`[SharedProject] 收到来自其他窗口的纹理数据更新...`, data);
+                        refreshTextures(data);
                     }
                 } else if (data['__magic__'] === 'sync-animation-frame') {
                     // 是magic，同步动画
@@ -164,7 +243,7 @@ Plugin.register('multi-window', {
             });
         }, 500);
 
-        function refreshCurrentProject(model) {
+        function refreshFullProject(model) {
             // 保存当前项目状态的重要部分
             const currentUUID = Project.uuid;
             const currentName = Project.name;
@@ -221,5 +300,70 @@ Plugin.register('multi-window', {
             Canvas.updateAll();
             Blockbench.dispatchEvent('post_refresh_project');
         }
+
+        function refreshModel(model) {
+            // 保存当前项目状态的重要部分
+            const currentUUID = Project.uuid;
+            const currentName = Project.name;
+
+            // 清除当前模型数据，但保留项目结构
+            Blockbench.dispatchEvent('pre_refresh_project');
+            Mesh.all.forEach(mesh => {
+                mesh.remove();
+            });
+            Mesh.all = [];
+            Group.all.forEach(group => {
+                group.remove(false);
+            });
+            Group.all = [];
+            Animation.all.forEach(animation => {
+                animation.remove(false, true);
+            });
+            Animation.all = [];
+
+            Codecs.project.parse(model, model.editor_state?.save_path || '', true);
+
+            // 恢复项目属性
+            Project.uuid = currentUUID;
+            Project.name = currentName;
+
+            // 更新界面
+            Canvas.updateAll();
+            Blockbench.dispatchEvent('post_refresh_project');
+        }
+
+        function refreshTextures(model) {
+            // 保存当前项目状态的重要部分
+            const currentUUID = Project.uuid;
+            const currentName = Project.name;
+            const currentSelection = {
+                elements: Project.selected_elements.slice(),
+                groups: Project.selected_groups.slice()
+            };
+
+            // 清除当前模型数据，但保留项目结构
+            Blockbench.dispatchEvent('pre_refresh_project');
+
+            Texture.all.forEach(texture => {
+                texture.remove(false);
+            });
+            Texture.all = [];
+            
+            // 恢复项目属性
+            Project.uuid = currentUUID;
+            Project.name = currentName;
+
+            // 尝试恢复选择（如果元素UUID匹配）
+            if (currentSelection.elements.length) {
+                Project.selected_elements = Outliner.elements.filter(element =>
+                    currentSelection.elements.find(sel => sel.uuid === element.uuid)
+                );
+            }
+
+            // 更新界面
+            Canvas.updateAll();
+            Blockbench.dispatchEvent('post_refresh_project');
+        }
     }
+    
 });
