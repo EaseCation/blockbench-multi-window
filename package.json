@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "BlockBench's Multi-Window Split Screen, Powered by Magic",
   "main": "multi-window.js",
+  "scripts": {
+    "build": "webpack --mode production",
+    "dev": "webpack --mode development --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "keywords": [
     "blockbench",
     "plugin",
@@ -12,6 +17,11 @@
   "author": "EaseCation",
   "license": "MIT",
   "devDependencies": {
-    "blockbench-types": "^4.12.1"
+    "@types/node": "^22.13.14",
+    "blockbench-types": "^4.12.1",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.4.5",
+    "webpack": "^5.91.0",
+    "webpack-cli": "^5.1.4"
   }
 }

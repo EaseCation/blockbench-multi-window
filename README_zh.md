@@ -21,12 +21,18 @@
 - 采用自定义序列化方式高效传输模型数据
 
 ## 安装方法
-1. 下载`multi-window.js`文件
+1. 下载 `dist/multi-window.js` 文件
 2. 打开Blockbench
 3. 进入`文件 > 插件`
 4. 点击"从文件加载插件"
 5. 选择下载的`multi-window.js`文件
 6. 重启Blockbench
+
+## 构建
+1. 克隆此仓库
+2. 运行 `npm install` 安装依赖
+3. 运行 `npm run build` 构建插件
+4. 构建后的文件将位于 `dist` 目录中
 
 ## 使用指南
 
