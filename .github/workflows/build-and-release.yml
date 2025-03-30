@@ -2,8 +2,7 @@ name: Build and Release
 
 on:
   push:
-    tags:
-      - 'v*' # 当推送新的版本标签时触发
+    branches: [ "main" ]
 
 jobs:
   build-and-release:
