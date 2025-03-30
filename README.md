@@ -23,7 +23,7 @@ This plugin uses some advanced "black magic" techniques to achieve seamless sync
 - Employs custom serialization to efficiently transfer model data
 
 ## Installation
-1. Download the `dist/multi-window.js` file
+1. Download the `multi-window.js` file from Release
 2. Open Blockbench
 3. Go to `File > Plugins`
 4. Click on "Load Plugin from File"
