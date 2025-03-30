@@ -1,3 +1,8 @@
+/**
+ * 之所以使用这个ipc方法（dragging-tab -> accept-detached-tab），是因为我们在插件中无权修改main.js中的ipcMain的代码。
+ * 刚好这个事件会广播到所有窗口中，因此我们覆盖原始监听，并在此基础上扩充额外的自己的逻辑。
+ */
+
 export function sendIPC(magic: string, data: any) {
     if (isApp) {
         data['__magic__'] = magic;

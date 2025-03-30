@@ -1,8 +1,8 @@
 export const openInNewWindowAction = new Action('open_in_new_window', {
-    icon: 'file_copy',
-    name: '在另一窗口打开',
-    description: '在另一窗口打开',
+    icon: 'backup_table',
     category: 'file',
+    name: tl('action.open_in_new_window'),
+    description: tl('action.open_in_new_window.desc'),
     condition: () => isApp && !!Project, // 只有在有项目打开且在应用程序中时才可用
     click: function () {
         if (!Project) return;
